@@ -1,0 +1,55 @@
+     1                                  ;Deric Mccadden, A00751277
+     2                                  ;2018-09-30
+     3                                  
+     4                                  %include "asm_io.inc"
+     1                              <1> 	extern  read_int, print_int, print_string
+     2                              <1> 	extern	read_char, print_char, print_nl
+     3                              <1> 	extern  sub_dump_regs, sub_dump_mem, sub_dump_math, sub_dump_stack
+     4                              <1> 
+     5                              <1> %macro 	dump_regs 1
+     6                              <1> 	push	  dword %1
+     7                              <1> 	call	  sub_dump_regs
+     8                              <1> %endmacro
+     9                              <1> 
+    10                              <1> 
+    11                              <1> ;
+    12                              <1> ; usage: dump_mem label, start-address, # paragraphs
+    13                              <1> %macro  dump_mem 3
+    14                              <1> 	push	 dword %1
+    15                              <1> 	push	 dword %2
+    16                              <1> 	push	 dword %3
+    17                              <1> 	call	 sub_dump_mem
+    18                              <1> %endmacro
+    19                              <1> 
+    20                              <1> %macro	dump_math 1
+    21                              <1> 	push	 dword %1
+    22                              <1> 	call	 sub_dump_math
+    23                              <1> %endmacro
+    24                              <1> 
+    25                              <1> %macro  dump_stack 3
+    26                              <1> 	push	 dword %3
+    27                              <1>         push     dword %2
+    28                              <1> 	push	 dword %1
+    29                              <1>         call     sub_dump_stack
+    30                              <1> %endmacro
+     5                                  
+     6                                  section .data
+     7 00000000 0000                        result dw 0;
+     8                                  
+     9                                  section .text
+    10                                      global  mult_asm
+    11                                  
+    12                                  mult_asm:
+    13 00000000 C8000000                    enter 0,0             ; local dword variable at EBP - 4
+    14 00000004 60                          pusha
+    15                                  
+    16 00000005 8B4508                      mov eax, [ebp + 8]
+    17 00000008 0FAF450C                    imul eax, [ebp + 12]
+    18 0000000C A3[00000000]                mov [result], eax
+    19 00000011 E8(00000000)                call print_int
+    20 00000016 E8(00000000)                call print_nl
+    21                                  
+    22 0000001B 61                          popa
+    23 0000001C A1[00000000]                mov eax, [result]           ; return back to C
+    24 00000021 C9                          leave
+    25 00000022 C3                          ret
